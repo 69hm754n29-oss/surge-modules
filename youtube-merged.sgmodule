@@ -1,0 +1,33 @@
+#!name=YouTube 合并版（省内存）
+#!desc=合并 YouTube Enhance(gholts) + Youtube去广告(Maasea) + Youtube (Music) Enhance 的全部生效内容，行为与三模块同时启用一致。改动：带 body 的 key/init/auto-hd 脚本从 JSC 改为 WebView 引擎，脚本内存不再计入 Surge 主进程。
+#!category=Minis
+#!system=ios
+
+[Rule]
+AND,((DOMAIN-SUFFIX,googlevideo.com), (PROTOCOL,UDP)),REJECT
+AND,((DOMAIN,youtubei.googleapis.com), (PROTOCOL,UDP)),REJECT
+
+[URL Rewrite]
+^https:\/\/www\.youtube\.com\/(pagead|pcs)\/ - reject
+^https:\/\/s\.youtube\.com\/api\/stats\/ads - reject
+"(^https?:\/\/[\w-]+\.googlevideo\.com\/(?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+)" $1$2$3 302
+
+[Map Local]
+^https?:\/\/[\w-]+\.googlevideo\.com\/(?!(dclk_video_ads|videoplayback\?)).+&oad data-type=text data=" " status-code=200
+^https?:\/\/(www|s)\.youtube\.com\/api\/stats\/ads data-type=text data=" " status-code=200
+^https?:\/\/(www|s)\.youtube\.com\/(pagead|ptracking) data-type=text data=" " status-code=200
+^https?:\/\/s\.youtube\.com\/api\/stats\/qoe\?adcontext data-type=text data=" " status-code=200
+^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&oad data-type=text data= status-code=200
+
+[Script]
+youtube.enhance.ad-break = type=http-request,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/player\/ad_break(?:\?.*)?$,engine=jsc,script-path=https://raw.githubusercontent.com/gholts/surge/main/scripts/youtube/request.js
+youtube.enhance.response = type=http-response,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(?:navigation\/resolve_url|browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch)(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,engine=webview,script-path=https://raw.githubusercontent.com/gholts/surge/main/scripts/youtube/response.js,argument="{"blockUpload":true,"blockShorts":true,"blockGames":true,"blockVerticalLive":true,"jumpAhead":true,"autoHd":true,"blockStore":true,"blockAi":true,"onTheGo":true}"
+youtube.enhance.key = type=http-response,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(?:config|log_event)(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,engine=webview,script-path=https://raw.githubusercontent.com/gholts/surge/main/scripts/youtube/key.js
+youtube.enhance.ump = type=http-response,pattern=^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,engine=webview,script-path=https://raw.githubusercontent.com/gholts/surge/main/scripts/youtube/ump.js,argument="{"blockGames":true,"blockVerticalLive":true,"jumpAhead":true,"autoHd":true,"blockStore":true,"blockAi":true,"onTheGo":true}"
+youtube.enhance.init = type=http-request,pattern=^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,engine=webview,script-path=https://raw.githubusercontent.com/gholts/surge/main/scripts/youtube/request.js,argument={"autoHd":true}
+youtube.enhance.auto-hd = type=http-request,pattern=^https?:\/\/[\w-]+\.googlevideo\.com\/videoplayback(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,engine=webview,script-path=https://raw.githubusercontent.com/gholts/surge/main/scripts/youtube/request.js,argument={"autoHd":true}
+youtube.enhance.log-event = type=http-request,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event(?:\?.*)?$,engine=jsc,script-path=https://raw.githubusercontent.com/gholts/surge/main/scripts/youtube/request.js
+youtube.maasea.fallback = type=http-response,pattern=^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch),script-path=https://raw.githubusercontent.com/Maasea/sgmodule/refs/heads/master/Script/Youtube/youtube.response.js,requires-body=true,binary-body-mode=true,max-size=-1,timeout=60
+
+[MITM]
+hostname = %APPEND% -redirector*.googlevideo.com, *.googlevideo.com, youtubei.googleapis.com, www.youtube.com, s.youtube.com

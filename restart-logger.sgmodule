@@ -1,0 +1,8 @@
+#!name=重启记录器
+#!desc=记录 Surge 引擎每次启动和网络切换的时间与网络状态，用来排查 Surge 频繁自动停止。不改任何流量。
+#!category=Minis
+#!system=ios
+
+[Script]
+minis-restart-engine = type=event,event-name=engine-started,engine=webview,timeout=10,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/restart-logger.js
+minis-restart-network = type=event,event-name=network-changed,engine=webview,timeout=10,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/restart-logger.js

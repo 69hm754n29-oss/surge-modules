@@ -11,7 +11,8 @@
     if: v4.primaryInterface || '',
     ip: v4.primaryAddress || '',
     ssid: wifi.ssid || '',
-    cell: n['cellular-data'] ? (n['cellular-data'].radio || '') : ''
+    cell: n['cellular-data'] ? (n['cellular-data'].radio || '') : '',
+    build: (typeof $environment !== 'undefined' && $environment) ? ($environment['surge-build'] || '') : ''
   };
   var arr = [];
   try { arr = JSON.parse($persistentStore.read(KEY) || '[]'); } catch (e) { arr = []; }

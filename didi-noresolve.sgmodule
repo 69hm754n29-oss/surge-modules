@@ -1,6 +1,9 @@
 #!name=滴滴出行（no-resolve）
-#!desc=与原「滴滴出行」模块内容一致，仅给 IP-CIDR 加 no-resolve，避免每个未命中域名被迫本地 DNS 解析。
+#!desc=跟随 ifflagged/Romeo 上游自动更新；仅给 IP-CIDR 规则加 no-resolve，避免未命中域名被迫本地 DNS 解析。
+#!author=树先生 / Minis
 #!category=Minis
+#!system=ios
+#!version=2026-11-12.0409
 
 [Rule]
 DOMAIN,as.xiaojukeji.com,REJECT
@@ -41,20 +44,26 @@ IP-CIDR,123.207.209.60/32,REJECT,no-resolve
 IP-CIDR,123.207.209.39/32,REJECT,no-resolve
 
 [Body Rewrite]
-http-response-jq ^https:\/\/common\.diditaxi\.com\.cn\/common\/v5\/usercenter\/layout "del(.data.instances.center_marketing_card, .data.instances.center_tool_card, .data.instances.center_widget_list, .data.instances.center_res_light_guide) | .data.instances.center_wallet_finance_card.data.view_info |= map(select(.title == "优惠卡券"))"
-http-response-jq ^https:\/\/conf\.diditaxi\.com\.cn\/homepage\/v1\/core\? ".data.disorder_cards.bottom_nav_list.data |= [.[] | select(.id == "home_page" or .id == "user_center")] | .data.order_cards.nav_list_card.data |= [.[] | select(.nav_id == "bike" or .nav_id == "driverservice" or .nav_id == "carmate")]"
-http-response-jq ^https:\/\/api\.udache\.com\/gulfstream\/passenger-center\/v2\/other\/pInTripLayout ".data.order_components |= map(select((.name != "passenger_common_casper") and (.name != "xp-card")))"
-http-response-jq ^https:\/\/api\.udache\.com\/gulfstream\/passenger-center\/v2\/bronze\/pEndTripPaidLayout ".data.layout.order |= ["finish-order-01"] | del(."data"."layout"."disorder"."member-growth")"
-http-response-jq ^https:\/\/api\.udache\.com\/gulfstream\/passenger-center\/v2\/bronze\/pInTripLayout ".data.layout.order |= ["header-card-1", "driver-card-1"]"
-http-response-jq ^https:\/\/common\.diditaxi\.com\.cn\/passenger\/historyV2 ".data.orders |= map(del(.guide_bar))"
+http-response-jq ^https:\/\/common\.diditaxi\.com\.cn\/common\/v5\/usercenter\/layout 'del(.data.instances.center_marketing_card, .data.instances.center_tool_card, .data.instances.center_widget_list, .data.instances.center_res_light_guide) | .data.instances.center_wallet_finance_card.data.view_info |= map(select(.title == "优惠卡券"))'
+http-response-jq ^https:\/\/conf\.diditaxi\.com\.cn\/homepage\/v1\/core\? '.data.disorder_cards.bottom_nav_list.data |= [.[] | select(.id == "home_page" or .id == "user_center")] | .data.order_cards.nav_list_card.data |= [.[] | select(.nav_id == "bike" or .nav_id == "driverservice" or .nav_id == "carmate")]'
+http-response-jq ^https:\/\/api\.udache\.com\/gulfstream\/passenger-center\/v2\/other\/pInTripLayout '.data.order_components |= map(select((.name != "passenger_common_casper") and (.name != "xp-card")))'
+http-response-jq ^https:\/\/api\.udache\.com\/gulfstream\/passenger-center\/v2\/bronze\/pEndTripPaidLayout '.data.layout.order |= ["finish-order-01"] | del(."data"."layout"."disorder"."member-growth")'
+http-response-jq ^https:\/\/api\.udache\.com\/gulfstream\/passenger-center\/v2\/bronze\/pInTripLayout '.data.layout.order |= ["header-card-1", "driver-card-1"]'
+http-response-jq ^https:\/\/common\.diditaxi\.com\.cn\/passenger\/historyV2 '.data.orders |= map(del(.guide_bar))'
 
 [Map Local]
-^https:\/\/conf\.diditaxi\.com\.cn\/homepage\/v1\/other\/slow data-type=text data={} header="Content-Type: application/json" status-code=200
-^https:\/\/ct\.xiaojukeji\.com\/agent\/v3\/feeds data-type=text data={} header="Content-Type: application/json" status-code=200
-^https:\/\/conf\.diditaxi\.com\.cn\/homepage\/v1\/other\/fast data-type=text data={} header="Content-Type: application/json" status-code=200
-^https:\/\/res\.xiaojukeji\.com\/resapi\/activity\/mget data-type=text data={} header="Content-Type: application/json" status-code=200
-^https:\/\/res\.xiaojukeji\.com\/resapi\/activity\/getInsActivityV2 data-type=text data={} header="Content-Type: application/json" status-code=200
-^https:\/\/api\.udache\.com\/gulfstream\/pandora\/v1\/invitation\/shareAddress\/pGetShareAddressPage data-type=text data={} header="Content-Type: application/json" status-code=200
+# 首页底部重逢福利推广
+^https:\/\/conf\.diditaxi\.com\.cn\/homepage\/v1\/other\/slow data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+# 订单详情页底部推广
+^https:\/\/ct\.xiaojukeji\.com\/agent\/v3\/feeds data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+# 首页底部各种推广图
+^https:\/\/conf\.diditaxi\.com\.cn\/homepage\/v1\/other\/fast data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+# 首页地图右下角，订单详情页右上角悬浮广告图标
+^https:\/\/res\.xiaojukeji\.com\/resapi\/activity\/mget data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+# 订单详情页底部推广调研反馈
+^https:\/\/res\.xiaojukeji\.com\/resapi\/activity\/getInsActivityV2 data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+# 订单页面右上角地址分享图标
+^https:\/\/api\.udache\.com\/gulfstream\/pandora\/v1\/invitation\/shareAddress\/pGetShareAddressPage data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 [MITM]
 hostname = %APPEND% 123.207.209.*, 116.85.2.14, 116.85.2.40, 116.85.2.41, 113.46.225.4, 113.46.225.5, 113.46.225.2, 113.46.225.3, ct.xiaojukeji.com, conf.diditaxi.com.cn, api.udache.com, common.diditaxi.com.cn, res.xiaojukeji.com

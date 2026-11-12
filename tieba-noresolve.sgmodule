@@ -1,22 +1,18 @@
 #!name=百度贴吧去广告（no-resolve）
-#!desc=与原「百度贴吧去广告@app2smile」内容一致，仅给 IP-CIDR 加 no-resolve。
+#!desc=跟随 app2smile/rules 上游自动更新；规则集加 no-resolve，避免未命中域名被迫本地 DNS 解析。
+#!author=app2smile / Minis
 #!category=Minis
+#!system=ios
+#!version=2026-11-12.0408
+#!arguments=per_filter_video:0
+#!arguments-desc=per_filter_video:设置为1则推荐页不展示视频贴
 
 [Rule]
-IP-CIDR,180.76.76.200/32,REJECT,no-resolve
-
-[Body Rewrite]
-http-response-jq ^https?:\/\/tieba(c)?\.baidu\.com\/c\/f\/search\/discover ".data.discover_list = []"
-http-response-jq ^https?:\/\/tieba(c)?\.baidu\.com\/c\/f\/sidebar\/home "del(.game_center, .tools, .vip_banner, .task_list)"
-http-response-jq ^https?:\/\/tieba(c)?\.baidu\.com\/c\/u\/user\/profile "del(.duxiaoman, .namoaixud, .namoaixud_entry, .recom_naws_list, .duxiaoman_entry, .vip_banner) | .zone_info |= map(select(.type == "common_func" or .type == "auxiliary_func"))"
-http-response-jq ^https?:\/\/tieba(c)?\.baidu\.com\/c\/f\/forum\/forumGuide ".hot_search = []"
-http-response-jq ^https?:\/\/tieba(c)?\.baidu\.com\/mo\/q\/search\/startPage del(.data)
-
-[Map Local]
-^https?:\/\/tieba(c)?\.baidu\.com\/c\/f\/ad\/getFeedAd data-type=text data=" " status-code=200
+RULE-SET,https://raw.githubusercontent.com/app2smile/rules/master/rule/tieba-ad.list,REJECT-DROP,no-resolve
 
 [Script]
-tieba-proto = type=http-response,pattern=^http(s:\/\/tiebac|:\/\/c\.tieba)\.baidu\.com\/c\/f\/(frs\/(page|threadlist|generalTabList)|pb\/page|excellent\/personalized)\?cmd,script-path=https://raw.githubusercontent.com/app2smile/rules/master/js/tieba-proto.js,requires-body=true,binary-body-mode=true,max-size=-1,timeout=60
+贴吧json = type=http-response,pattern=^https?:\/\/(tiebac|c\.tieba)\.baidu\.com\/(c\/(s\/sync|f\/(ad\/getSplashAd|frs\/(page|threadlist|generalTabList)|pb\/(pic)?page|excellent\/personalized))$|tiebaads\/commonbatch\?),requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/app2smile/rules/master/js/tieba-json.js,script-update-interval=0
+贴吧proto = type=http-response,pattern=^https?:\/\/(tiebac|c\.tieba)\.baidu\.com\/c\/(b\/ad\/adBid|f\/(frs\/(page|threadlist|generalTabList)|ad\/getFeedAd|pb\/page|excellent\/personalized))\?cmd,requires-body=1,binary-body-mode=1,max-size=-1,script-path=https://raw.githubusercontent.com/app2smile/rules/master/js/tieba-proto.js,argument=per_filter_video_thread={{{per_filter_video}}}
 
 [MITM]
-hostname = %APPEND% tieba.baidu.com, tiebac.baidu.com
+hostname = %APPEND% tiebac.baidu.com

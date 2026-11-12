@@ -3,7 +3,7 @@
 #!author=杏九 / Minis
 #!category=Minis
 #!system=ios
-#!version=2026-11-12.0416
+#!version=2026-11-12.0434
 
 [Rule]
 DOMAIN,sensors.umetrip.com.cn,REJECT

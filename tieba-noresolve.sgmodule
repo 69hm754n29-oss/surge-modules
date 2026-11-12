@@ -3,7 +3,7 @@
 #!author=app2smile / Minis
 #!category=Minis
 #!system=ios
-#!version=2026-11-12.0408
+#!version=2026-11-12.0416
 #!arguments=per_filter_video:0
 #!arguments-desc=per_filter_video:设置为1则推荐页不展示视频贴
 

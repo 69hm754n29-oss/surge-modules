@@ -26,7 +26,10 @@ jobs:
           mkdir -p /tmp/before
           git ls-files '*.sgmodule' '*.js' | xargs -r -I{} cp --parents {} /tmp/before/ 2>/dev/null || true
           sh build_all.sh
-          for f in $(git ls-files '*.js'); do node --check "$f" || exit 1; done
+          # 只校验生成产物，模板里有占位符
+          for f in bilibili/bilibili.allinone.js bilibili/bilibili.skin.js restart-logger.js; do
+            [ -f "$f" ] && { node --check "$f" || exit 1; }
+          done
       - name: Commit if changed
         run: |
           git config user.name github-actions

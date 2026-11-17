@@ -3,7 +3,7 @@
 #!author=Minis / gholts / Maasea
 #!category=Minis
 #!system=ios
-#!version=2026-11-16.2203
+#!version=2026-11-17.0755
 
 [Rule]
 AND,((DOMAIN-SUFFIX,googlevideo.com), (PROTOCOL,UDP)),REJECT

@@ -3,7 +3,7 @@
 #!author=树先生 / Minis
 #!category=Minis
 #!system=ios
-#!version=2026-11-18.0437
+#!version=2026-11-18.0438
 
 [Rule]
 DOMAIN,as.xiaojukeji.com,REJECT

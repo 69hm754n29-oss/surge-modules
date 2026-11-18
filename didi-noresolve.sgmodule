@@ -1,9 +1,9 @@
 #!name=滴滴出行（no-resolve）
-#!desc=跟随 ifflagged/Romeo 上游自动更新；仅给 IP-CIDR 规则加 no-resolve，避免未命中域名被迫本地 DNS 解析。
+#!desc=跟随 ifflagged/Romeo 上游自动更新；IP-CIDR 规则加 no-resolve；隐藏底部消息和行程，保留原有去广告规则。
 #!author=树先生 / Minis
 #!category=Minis
 #!system=ios
-#!version=2026-11-17.2056
+#!version=2026-11-18.0437
 
 [Rule]
 DOMAIN,as.xiaojukeji.com,REJECT
@@ -45,7 +45,7 @@ IP-CIDR,123.207.209.39/32,REJECT,no-resolve
 
 [Body Rewrite]
 http-response-jq ^https:\/\/common\.diditaxi\.com\.cn\/common\/v5\/usercenter\/layout 'del(.data.instances.center_marketing_card, .data.instances.center_tool_card, .data.instances.center_widget_list, .data.instances.center_res_light_guide)'
-http-response-jq ^https:\/\/conf\.diditaxi\.com\.cn\/homepage\/v1\/core\? '.data.order_cards.nav_list_card.data |= [.[] | select(.nav_id == "bike" or .nav_id == "driverservice" or .nav_id == "carmate")]'
+http-response-jq ^https:\/\/conf\.diditaxi\.com\.cn\/homepage\/v1\/core\? '.data.order_cards.nav_list_card.data |= [.[] | select(.nav_id == "bike" or .nav_id == "driverservice" or .nav_id == "carmate")] | if (.data.disorder_cards.bottom_nav_list.data | type) == "array" then .data.disorder_cards.bottom_nav_list.data |= map(select(.id != "message_center" and .id != "itinerary")) else . end'
 http-response-jq ^https:\/\/api\.udache\.com\/gulfstream\/passenger-center\/v2\/other\/pInTripLayout '.data.order_components |= map(select((.name != "passenger_common_casper") and (.name != "xp-card")))'
 http-response-jq ^https:\/\/api\.udache\.com\/gulfstream\/passenger-center\/v2\/bronze\/pEndTripPaidLayout '.data.layout.order |= ["finish-order-01"] | del(."data"."layout"."disorder"."member-growth")'
 http-response-jq ^https:\/\/api\.udache\.com\/gulfstream\/passenger-center\/v2\/bronze\/pInTripLayout '.data.layout.order |= ["header-card-1", "driver-card-1"]'

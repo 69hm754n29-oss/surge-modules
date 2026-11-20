@@ -331,19 +331,8 @@ function tiebaCleanUI(body, requestUrl) {
                 });
             }
         }
-        // The profile header gradient shares the response object with the
-        // membership promo. Keep only the full-width header backgrounds.
-        if (body.vip_banner && typeof body.vip_banner === 'object') {
-            const backgrounds = {};
-            for (const key of ['background_day', 'background_night']) {
-                const value = body.vip_banner[key];
-                if (typeof value === 'string' && value) backgrounds[key] = value;
-            }
-            if (Object.keys(backgrounds).length) body.vip_banner = backgrounds;
-            else delete body.vip_banner;
-        } else {
-            delete body.vip_banner;
-        }
+        // Keep the original vip_banner intact. A background-only payload
+        // leaves a visible empty card on the iOS profile page.
     }
     return body;
 }

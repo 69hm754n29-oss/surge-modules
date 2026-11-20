@@ -50,7 +50,7 @@ if matched != 1:
 open(os.path.join(HERE, 'tieba-json.js'), 'w').write(combined_js)
 out = [
     '#!name=百度贴吧去广告（no-resolve）',
-    '#!desc=跟随 app2smile/rules 上游自动更新；规则集保留 no-resolve；隐藏首页直播、我的页四格、钱包、推广横幅、游戏专区及会员横幅。',
+    '#!desc=跟随 app2smile/rules 上游；保留 no-resolve 与原去广告；精简首页直播和我的页，仅保留收藏、点赞、历史入口。',
     '#!author=app2smile / Minis',
     '#!category=Minis',
     '#!system=ios',

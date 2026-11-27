@@ -11,5 +11,6 @@
 | 航旅纵横去广告 | `umetrip.sgmodule` | xingjiu29/Umetrip（Loon→Surge 自动转换） |
 | 重启记录器 | `restart-logger.sgmodule` | 本地，无上游 |
 | 小红书合并版（自动跟随上游） | `xiaohongshu-merged.sgmodule` | fmz200/wool_scripts + Polly-ai/Wynston（墨鱼镜像）+ 本地实况处理 |
+| AgentRouter Codex 指纹补全 | `agentrouter/AgentRouter-Codex-FP.sgmodule` | 本地，无上游 |
 
 本地重建：`sh build_all.sh`（需要 python3 和 node）。

@@ -1,0 +1,15 @@
+#!name=AnyRouter 兼容
+#!desc=anyrouter.top 请求改写：/v1/responses 补请求体（sol 补 prompt_cache_key + 归一 input，astra 补完整 codex 形态）；/v1/messages、/v1/models 镜像鉴权头并追加 anthropic-beta。
+#!author=Minis
+#!system=ios
+#!category=网络
+#!arguments=处理模型:gpt-6.1-sol,缓存键:minis-surge,全部补成完整体:false,调试日志:false
+#!arguments-desc=- 处理模型: 前缀匹配，默认 gpt-6.1-sol。gpt-6-astra 系列总是处理。\n\n- 缓存键: prompt_cache_key 的值。\n\n- 全部补成完整体: ["false","true"] 默认 false。\n\n- 调试日志: ["false","true"]
+
+[Script]
+Responses 补全 = type=http-request,pattern=^https:\/\/anyrouter\.top\/v1\/responses(?:\?.*)?$,requires-body=1,max-size=-1,timeout=300,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/anyrouter/anyrouter.js,script-update-interval=86400,argument=mode=responses&model={{{处理模型}}}&pck={{{缓存键}}}&full={{{全部补成完整体}}}&log={{{调试日志}}}
+Messages 鉴权 = type=http-request,pattern=^https:\/\/anyrouter\.top\/v1\/messages(?:\?.*)?$,requires-body=0,max-size=-1,timeout=300,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/anyrouter/anyrouter.js,script-update-interval=86400,argument=mode=messages&log={{{调试日志}}}
+Models 鉴权 = type=http-request,pattern=^https:\/\/anyrouter\.top\/v1\/models(?:\?.*)?$,requires-body=0,max-size=-1,timeout=300,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/anyrouter/anyrouter.js,script-update-interval=86400,argument=mode=models&log={{{调试日志}}}
+
+[MITM]
+hostname = %APPEND% anyrouter.top

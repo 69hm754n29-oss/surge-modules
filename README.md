@@ -12,7 +12,6 @@
 | 重启记录器 | `restart-logger.sgmodule` | 本地，无上游 |
 | 小红书合并版（自动跟随上游） | `xiaohongshu-merged.sgmodule` | fmz200/wool_scripts + Polly-ai/Wynston（墨鱼镜像）+ 本地实况处理 |
 | AgentRouter Codex 指纹补全 | `agentrouter/AgentRouter-Codex-FP.sgmodule` | 本地，无上游 |
-| AnyRouter 请求体兼容（sol / astra） | `anyrouter/anyrouter-responses.sgmodule` | 本地，无上游 |
-| AnyRouter 鉴权头镜像 | `anyrouter/anyrouter-authheaders.sgmodule` | 本地，无上游 |
+| AnyRouter 兼容 | `anyrouter/anyrouter.sgmodule` | 本地，无上游 |
 
 本地重建：`sh build_all.sh`（需要 python3 和 node）。

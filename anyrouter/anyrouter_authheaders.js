@@ -1,13 +1,3 @@
-/*
- * AnyRouter 鉴权头镜像（Surge http-request 脚本）
- * 只做请求头改写，不碰请求体、不碰响应。
- *
- *   messages : /v1/messages —— 追加 anthropic-beta: context-1m-2025-08-07，x-api-key 镜像到 Authorization
- *   models   : /v1/models   —— x-api-key 镜像到 Authorization（Anthropic provider 刷新模型列表用）
- *
- * 参数：mode / log
- */
-
 (function () {
   "use strict";
 
@@ -33,7 +23,7 @@
   function log(msg) { if (DEBUG) console.log("[AnyRouter Auth] " + msg); }
   function finish(v) { $done(v || {}); }
 
-  /* ---------- header 工具（大小写不敏感） ---------- */
+  
 
   function getHeader(headers, name) {
     var want = String(name).toLowerCase();
@@ -66,7 +56,7 @@
     return out;
   }
 
-  /* ---------- 模式二：/v1/messages 追加 1m beta ---------- */
+  
 
   function handleMessages() {
     var headers = copyHeaders($request.headers);
@@ -83,7 +73,7 @@
     finish({ headers: headers });
   }
 
-  /* ---------- 模式三：/v1/models 镜像鉴权头 ---------- */
+  
 
   function handleModels() {
     var headers = copyHeaders($request.headers);

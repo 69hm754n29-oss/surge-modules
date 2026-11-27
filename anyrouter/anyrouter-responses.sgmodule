@@ -1,10 +1,10 @@
 #!name=AnyRouter 请求体兼容（sol / astra）
-#!desc=只处理 anyrouter.top 的 POST /v1/responses：gpt-6.1-sol 补 prompt_cache_key 并把 input 归一成数组；gpt-6-astra* 补成完整 codex 形态（input 数组 / include reasoning.encrypted_content / tools / store / store / UA）。其他模型原样放行。只改请求不碰响应，流式保留。
+#!desc=anyrouter.top /v1/responses 请求体补全（gpt-6.1-sol 补 prompt_cache_key，gpt-6-astra 补完整 codex 形态）。
 #!author=Minis
 #!system=ios
 #!category=网络
 #!arguments=处理模型:gpt-6.1-sol,缓存键:minis-surge,全部补成完整体:false,调试日志:false
-#!arguments-desc=- 处理模型: 前缀匹配的模型名。默认 gpt-6.1-sol。gpt-6-astra 系列无需填写，脚本总是处理。\n\n- 缓存键: 填进 prompt_cache_key 的固定值。\n\n- 全部补成完整体: ["false","true"] 默认 false = 只有 astra 走完整 codex 形态；true = 白名单模型全部补成完整体。\n\n- 调试日志: ["false","true"] true 时在 Surge 脚本日志里看改写结果。
+#!arguments-desc=- 处理模型: 前缀匹配，默认 gpt-6.1-sol。gpt-6-astra 系列总是处理。\n\n- 缓存键: prompt_cache_key 的值。\n\n- 全部补成完整体: ["false","true"] 默认 false，只有 astra 走完整体。\n\n- 调试日志: ["false","true"]
 
 [Script]
 AnyRouter Responses 补全 = type=http-request,pattern=^https:\/\/anyrouter\.top\/v1\/responses(?:\?.*)?$,requires-body=1,max-size=-1,timeout=300,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/anyrouter/anyrouter_responses.js,script-update-interval=86400,argument=model={{{处理模型}}}&pck={{{缓存键}}}&full={{{全部补成完整体}}}&log={{{调试日志}}}

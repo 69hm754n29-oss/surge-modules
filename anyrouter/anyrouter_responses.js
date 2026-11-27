@@ -1,19 +1,3 @@
-/*
- * AnyRouter 统一请求改写（Surge http-request 脚本）
- * 仓库：Minis Surge 模块仓库（统一托管，不再分散在多个账号）
- *
- * 一个脚本管三件事，由 argument 的 mode= 选择：
- *   responses : /v1/responses —— 补请求体
- *                 · gpt-6.1-sol  ：补 prompt_cache_key，并把 input 归一成数组（站点强制）
- *                 · gpt-6-astra*  ：补成完整 codex 形态（input/include/tools/store/UA）
- *                 · 其他模型      ：原样放行
- *   messages  : /v1/messages  —— 追加 anthropic-beta: context-1m-2025-08-07，x-api-key 镜像到 Authorization
- *   models    : /v1/models    —— x-api-key 镜像到 Authorization（刷新模型列表用）
- *
- * 只改请求、不碰响应，流式保留。
- * 参数：mode / models / full / pck / log
- */
-
 (function () {
   "use strict";
 
@@ -42,14 +26,12 @@
   var PCK_OVERRIDE = String(args.pck || "");
   if (PCK_OVERRIDE) PCK_FALLBACK = PCK_OVERRIDE;
 
-  // 白名单：+ 或逗号或竖线分隔；空 = 所有模型都处理
   var MODELS = String(args.model || args.models || "").split(/[,+|]/).map(function (s) {
     return s.trim();
   }).filter(function (s) { return s.length > 0; });
 
-  // 前缀命中即算在名单里；asterisk 结尾视为前缀匹配
   function needFix(model) {
-    if (/^gpt-6-astra/i.test(model)) return true;   // astra 永远处理
+    if (/^gpt-6-astra/i.test(model)) return true;
     if (!MODELS.length) return true;
     for (var i = 0; i < MODELS.length; i++) {
       if (model === MODELS[i] || model.indexOf(MODELS[i]) === 0) return true;
@@ -57,8 +39,6 @@
     return false;
   }
 
-  // full 模式：全局开关（true 时所有白名单模型都补成完整 codex 形态）；
-  // 另外 gpt-6-astra* 永远走完整体，因为它只有完整体才认
   var FORCE_FULL = /^(1|true|on|yes)$/i.test(args.full || "false");
   function useFullMode(model) {
     if (FORCE_FULL) return true;
@@ -75,7 +55,7 @@
     return Object.prototype.toString.call(v) === "[object Array]";
   }
 
-  /* ---------- header 工具（大小写不敏感） ---------- */
+  
 
   function getHeader(headers, name) {
     var want = String(name).toLowerCase();
@@ -108,7 +88,7 @@
     return out;
   }
 
-  /* ---------- 文本提取：兼容 anthropic / openai 各种 content 形态 ---------- */
+  
 
   function textOf(content) {
     if (typeof content === "string") return content;
@@ -165,7 +145,7 @@
     return items;
   }
 
-  /* ---------- 核心：把任意形态补成完整 codex 请求体 ---------- */
+  
 
   function buildCodexBody(body) {
     return {
@@ -185,7 +165,7 @@
     };
   }
 
-  /* ---------- 模式一：/v1/responses 补全请求体 ---------- */
+  
 
   function handleResponses() {
     if (!$request || $request.method !== "POST" || !$request.body) return finish();
@@ -199,7 +179,6 @@
     }
     if (!body || typeof body.model !== "string" || !body.model) return finish();
 
-    // 白名单：命中才补全，其他模型原样放行
     if (!needFix(body.model)) {
       log("模型 " + body.model + " 不在白名单，放行");
       return finish();
@@ -209,17 +188,14 @@
     var rebuilt;
     var full = useFullMode(body.model);
     if (full) {
-      // 完整体：补成完整 codex 形态（gpt-6-astra* 必需）
       rebuilt = buildCodexBody(body);
       setHeader(headers, "User-Agent", "codex_cli_rs/" + CODEX_VERSION + " (iOS) Surge");
       setHeader(headers, "Originator", "codex_cli_rs");
     } else {
-      // 轻量体：只补最小必需字段（gpt-6.1-sol 只要这些）
       rebuilt = body;
       if (typeof rebuilt.prompt_cache_key !== "string" || !rebuilt.prompt_cache_key) {
         rebuilt.prompt_cache_key = PCK_FALLBACK;
       }
-      // sol 不认字符串形态的 input，也不认只有 messages，统一成数组
       if (!isArray(rebuilt.input)) {
         rebuilt.input = toCodexInput(rebuilt);
       }
@@ -234,7 +210,7 @@
     finish({ body: JSON.stringify(rebuilt), headers: headers });
   }
 
-  /* ---------- 模式二：/v1/messages 追加 1m beta ---------- */
+  
 
   function handleMessages() {
     var headers = copyHeaders($request.headers);
@@ -251,7 +227,7 @@
     finish({ headers: headers });
   }
 
-  /* ---------- 模式三：/v1/models 镜像鉴权头 ---------- */
+  
 
   function handleModels() {
     var headers = copyHeaders($request.headers);

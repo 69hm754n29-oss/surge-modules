@@ -1,10 +1,10 @@
 #!name=AnyRouter 鉴权头镜像（Anthropic / 模型列表）
-#!desc=只改请求头：/v1/messages 追加 anthropic-beta: context-1m-2025-08-07 并把 x-api-key 镜像到 Authorization；/v1/models 把 x-api-key 镜像到 Authorization（Anthropic 格式的 provider 刷新模型列表用）。不碰请求体，不碰响应。
+#!desc=anyrouter.top 请求头镜像：/v1/messages 追加 anthropic-beta，x-api-key 镜像到 Authorization。
 #!author=Minis
 #!system=ios
 #!category=网络
 #!arguments=调试日志:false
-#!arguments-desc=- 调试日志: ["false","true"] true 时在 Surge 脚本日志里看改写结果。
+#!arguments-desc=- 调试日志: ["false","true"]
 
 [Script]
 AnyRouter Messages 鉴权 = type=http-request,pattern=^https:\/\/anyrouter\.top\/v1\/messages(?:\?.*)?$,requires-body=0,max-size=-1,timeout=300,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/anyrouter/anyrouter_authheaders.js,script-update-interval=86400,argument=mode=messages&log={{{调试日志}}}

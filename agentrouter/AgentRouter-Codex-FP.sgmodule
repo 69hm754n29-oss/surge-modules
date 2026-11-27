@@ -1,18 +1,18 @@
 #!name=AgentRouter Codex 指纹补全
-#!desc=给 agentrouter.org / air-outer.com 的 /v1 请求补 Codex CLI 指纹（UA、originator、session/thread 头）。
+#!desc=按 Codex 0.172.0 的 Responses HTTP 实现补全；不模拟 TLS/HTTP2/设备证明。不转换 Chat Completions/Messages，不改原提示词、工具 schema、认证头或服务器路由值。
 #!author=Minis
-#!homepage=https://agentrouter.org
+#!homepage=https://github.com/openai/codex/tree/rust-v0.172.0
 #!system=ios
 #!category=网络
-#!arguments=指纹模式:auto,Codex版本:"0.172.0",系统描述:"Mac OS 15.6.1",架构:arm64,终端标识:"iTerm.app/3.6.6",会话复用分钟:"360"
-#!arguments-desc=- 指纹模式: ["auto"] /v1/messages 走 claude-cli，其余走 codex；["full"] 全走 codex 且改 body；["headers"] 只改头；["minimal"] 只补 UA。\n\n- Codex版本: UA 版本号，默认 "0.172.0"。\n\n- 系统描述 / 架构 / 终端标识: 拼进 UA，默认 macOS + arm64 + iTerm.app/3.6.6。\n\n- 会话复用分钟: session-id / thread-id 复用时长，默认 "360"。
+#!arguments=指纹模式:"full",Codex版本:"0.172.0",系统描述:"Mac OS 27.2.1",架构:"arm64",终端标识:"iTerm.app/3.6.6",会话复用分钟:"360"
+#!arguments-desc=- 指纹模式: ["full"] 补请求头和缺失的 Responses 字段；["auto"] 同 full，仅覆盖 Responses；["headers"] 正文字节不变；["minimal"] 只补 UA/originator。显式原值保留，不伪造工具或系统提示词。\n\n- Codex版本: 默认 0.172.0；字段实现固定该版本，修改 UA 版本号不会自动切换协议版本。\n\n- 系统描述 / 架构 / 终端标识: UA 描述；不会改变 Surge 的 TLS 或 HTTP2 指纹。\n\n- 会话复用分钟: 无客户端会话标识时的本地回退值复用上限，默认 360；按站点和账号摘要隔离，不存密钥。原客户端会话标识优先。
 
 [Panel]
-AgentRouter Codex 指纹 = title="AgentRouter Codex 指纹",content="点刷新查看",style=info,script-name=AgentRouter Codex 指纹面板
+AgentRouter Codex 指纹 = title="AgentRouter Codex 指纹",content="点刷新查看本地匹配计数",style=info,script-name=AgentRouter Codex 指纹面板
 
 [Script]
-AgentRouter Codex 指纹面板 = type=generic,timeout=30,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/agentrouter/agentrouter_codex_fp.js,script-update-interval=86400,argument=mode=panel&ver={{{Codex版本}}}&os={{{系统描述}}}&arch={{{架构}}}&term={{{终端标识}}}&ttl={{{会话复用分钟}}}
-AgentRouter Codex 指纹 = type=http-request,pattern=^https?://([A-Za-z0-9_-]+\.)*(agentrouter\.org|air-outer\.com)/v1/,requires-body=1,max-size=-1,timeout=30,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/agentrouter/agentrouter_codex_fp.js,script-update-interval=86400,argument=mode={{{指纹模式}}}&ver={{{Codex版本}}}&os={{{系统描述}}}&arch={{{架构}}}&term={{{终端标识}}}&ttl={{{会话复用分钟}}}
+AgentRouter Codex 指纹面板 = type=generic,timeout=10,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/agentrouter/agentrouter_codex_fp.js?v=20261127-2,script-update-interval=300,argument=mode=panel&ver={{{Codex版本}}}&os={{{系统描述}}}&arch={{{架构}}}&term={{{终端标识}}}&ttl={{{会话复用分钟}}}
+AgentRouter Codex 指纹 = type=http-request,pattern=^https?://([A-Za-z0-9_-]+\.)*(agentrouter\.org|air-outer\.com)(:[0-9]+)?/v1/responses(/compact)?/?(\?[^#]*)?$,requires-body=1,max-size=-1,timeout=10,script-path=https://raw.githubusercontent.com/69hm754n29-oss/surge-modules/main/agentrouter/agentrouter_codex_fp.js?v=20261127-2,script-update-interval=300,argument=mode={{{指纹模式}}}&ver={{{Codex版本}}}&os={{{系统描述}}}&arch={{{架构}}}&term={{{终端标识}}}&ttl={{{会话复用分钟}}}
 
 [MITM]
 hostname = %APPEND% agentrouter.org, *.agentrouter.org, air-outer.com, *.air-outer.com
